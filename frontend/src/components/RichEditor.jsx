@@ -71,8 +71,25 @@ export default function RichEditor({ content, onChange, onSelectionChange, onCur
   }, [editor])
 
   useEffect(() => {
-    if (editor && content !== editor.getHTML() && !editor.isFocused) {
-      editor.commands.setContent(content, false)
+    if (!editor || content === editor.getHTML()) return
+
+    // Previously skipped this entirely whenever the local user had focus —
+    // meant to avoid clobbering their cursor position mid-keystroke, but it
+    // silently dropped every remote collaborator's update for as long as this
+    // user was actively typing (i.e. most of a real editing session), which
+    // is why text sync looked "sometimes" broken while cursors (no such
+    // guard) kept working fine. Applying it unconditionally and restoring
+    // the local selection afterwards (clamped to the new document's size, in
+    // case the incoming content is shorter) keeps remote edits flowing in
+    // real time without visibly disrupting local typing.
+    const wasFocused = editor.isFocused
+    const { from, to } = editor.state.selection
+    editor.commands.setContent(content, false)
+    if (wasFocused) {
+      const size = editor.state.doc.content.size
+      const clamp = (pos) => Math.max(0, Math.min(pos, size))
+      editor.commands.setTextSelection({ from: clamp(from), to: clamp(to) })
+      editor.commands.focus()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content])

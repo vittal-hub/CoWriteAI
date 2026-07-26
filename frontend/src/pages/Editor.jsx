@@ -89,6 +89,7 @@ export default function EditorPage({ demoMode = false }) {
   const editorRef = useRef(null)
   const canvasRef = useRef(null)
   const saveTimer = useRef(null)
+  const broadcastThrottle = useRef({ timer: null, pending: null })
   const cursorThrottle = useRef(null)
   const loadedDocIdRef = useRef(null)
   const [, forceRerender] = useState(0)
@@ -278,7 +279,26 @@ export default function EditorPage({ demoMode = false }) {
   function handleContentChange(html) {
     setContent(html)
     if (demoMode) return // in-memory only — no socket broadcast, no cloud save
-    emit('doc:update', { content: html, version: Date.now() })
+
+    // Each doc:update carries the entire document (this architecture has no
+    // diffing), so broadcasting on every single keystroke sends a full copy
+    // per character during a fast typing burst. Leading + trailing throttle
+    // keeps it near-instant (the very first keystroke of a burst still goes
+    // out immediately) while capping the rate during a burst to at most one
+    // message per ~60ms — well under perceptible typing latency — and the
+    // trailing send guarantees the final state of the burst always goes out.
+    const throttle = broadcastThrottle.current
+    throttle.pending = html
+    if (!throttle.timer) {
+      emit('doc:update', { content: html, version: Date.now() })
+      throttle.timer = setTimeout(() => {
+        throttle.timer = null
+        if (throttle.pending !== html) {
+          emit('doc:update', { content: throttle.pending, version: Date.now() })
+        }
+      }, 60)
+    }
+
     clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => updateDocumentContent(docId, html), 500)
   }
