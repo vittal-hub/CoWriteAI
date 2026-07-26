@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X, Link2, Lock, ArrowRight, AlertCircle } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
+import { authHeaders } from '../utils/api.js'
 import './JoinModal.css'
 
 // See utils/api.js — VITE_API_URL lets this point at a separately-hosted
@@ -27,7 +28,7 @@ export default function JoinModal({ onClose }) {
       const res = await fetch(`${BASE}/documents/join`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
           linkOrToken: linkOrToken.trim(),
           password: password.trim(),

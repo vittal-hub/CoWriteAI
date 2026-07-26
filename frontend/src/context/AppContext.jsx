@@ -13,6 +13,8 @@ import {
   comments as commentsApi,
   API_BASE,
   wsUrl,
+  setAuthToken,
+  authHeaders,
 } from '../utils/api.js'
 
 const AppContext = createContext(null)
@@ -237,7 +239,8 @@ export function AppProvider({ children }) {
   const login = useCallback(async (email, password) => {
     setAuthError(null)
     try {
-      const { user } = await authApi.login(email, password)
+      const { user, token } = await authApi.login(email, password)
+      setAuthToken(token)
       setProfile(buildProfile(user))
       setIsAuthenticated(true)
       return true
@@ -252,7 +255,8 @@ export function AppProvider({ children }) {
   const register = useCallback(async (name, email, password, penColor) => {
     setAuthError(null)
     try {
-      const { user } = await authApi.register(name, email, password, penColor)
+      const { user, token } = await authApi.register(name, email, password, penColor)
+      setAuthToken(token)
       setProfile(buildProfile(user))
       setIsAuthenticated(true)
       return { ok: true }
@@ -264,6 +268,7 @@ export function AppProvider({ children }) {
 
   const logout = useCallback(async () => {
     try { await authApi.logout() } catch {}
+    setAuthToken(null)
     setIsAuthenticated(false)
     setProfile(null)
     setDocuments([])
@@ -352,6 +357,7 @@ export function AppProvider({ children }) {
       const res = await fetch(`${API_BASE}/api/documents/${docId}/accept-invite`, {
         method: 'POST',
         credentials: 'include',
+        headers: authHeaders(),
       })
       if (res.ok) {
         fetchDocuments()
@@ -367,6 +373,7 @@ export function AppProvider({ children }) {
       const res = await fetch(`${API_BASE}/api/documents/${docId}/decline-invite`, {
         method: 'POST',
         credentials: 'include',
+        headers: authHeaders(),
       })
       if (res.ok) {
         fetchDocuments()
@@ -471,6 +478,7 @@ export function AppProvider({ children }) {
     try {
       await authApi.deleteAccount()
       // Clear all state same as logout after success so local state is clean
+      setAuthToken(null)
       setIsAuthenticated(false)
       setProfile(null)
       setDocuments([])

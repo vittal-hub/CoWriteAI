@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, Link2, Check, Mail, AlertCircle, Lock, Globe } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
+import { authHeaders } from '../utils/api.js'
 import Avatar from './Avatar.jsx'
 import './ShareModal.css'
 
@@ -35,7 +36,7 @@ export default function ShareModal({ doc, onClose }) {
       const res = await fetch(`${BASE}/documents/${doc.id}/share`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ email: email.trim(), permission }),
       })
       const data = await res.json()
@@ -57,7 +58,7 @@ export default function ShareModal({ doc, onClose }) {
       const res = await fetch(`${BASE}/documents/${doc.id}/link`, {
         method: 'PATCH',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
           linkAccess: newAccess,
           sharePassword: newPass.trim() || null,
