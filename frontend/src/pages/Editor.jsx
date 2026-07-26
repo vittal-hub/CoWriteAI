@@ -28,7 +28,7 @@ const DEMO_LOCKED_TITLE = 'Sign in to use this feature'
 export default function EditorPage({ demoMode = false }) {
   const { docId } = useParams()
   const navigate = useNavigate()
-  const { documents, currentUser, updateDocumentContent, renameDocument, deleteDocument, fetchDocuments } = useApp()
+  const { documents, currentUser, updateDocumentContent, renameDocument, deleteDocument, fetchDocuments, fetchComments } = useApp()
   const { isSticky, isScrollingUp } = useStickyHeader(15)
 
   // Demo Mode never has a real authenticated user — DEMO_PROFILE stands in for
@@ -153,6 +153,11 @@ export default function EditorPage({ demoMode = false }) {
     } else {
       setLoading(true)
     }
+
+    // Fired in parallel with the document fetch below rather than waiting for
+    // CommentsPanel to mount (which only happens once `loading` clears) — that
+    // used to serialize "load doc, then load comments" into one long chain.
+    fetchComments(docId)
 
     docsApi.get(docId)
       .then(({ document: raw }) => {

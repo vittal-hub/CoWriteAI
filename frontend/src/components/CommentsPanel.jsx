@@ -13,10 +13,13 @@ export default function CommentsPanel({ docId, pendingAnchor, onClearAnchor, cla
   // backend, so refreshing the page resets it along with everything else.
   const [demoComments, setDemoComments] = useState([])
 
-  // Fetch comments for this doc when it changes (skipped entirely in demo mode)
+  // Fetch comments for this doc when it changes (skipped entirely in demo mode).
+  // Editor.jsx already kicks this off in parallel with the document fetch, so
+  // this only actually fires here if that hasn't happened yet — undefined vs.
+  // an empty array distinguishes "not fetched" from "fetched, no comments".
   useEffect(() => {
-    if (!demoMode && docId) fetchComments(docId)
-  }, [docId, demoMode, fetchComments])
+    if (!demoMode && docId && comments[docId] === undefined) fetchComments(docId)
+  }, [docId, demoMode, fetchComments, comments])
 
   const list = demoMode ? demoComments : (comments[docId] || [])
   const open = list.filter((c) => !c.resolved)

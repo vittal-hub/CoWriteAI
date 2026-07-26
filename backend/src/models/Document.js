@@ -52,6 +52,12 @@ const documentSchema = new mongoose.Schema(
 );
 
 documentSchema.index({ title: 'text' });
+// listDocuments' scope=all/shared queries filter on this via $elemMatch —
+// without it, every such query does a full collection scan.
+documentSchema.index({ 'collaborators.user': 1 });
+// listDocuments' default sort — lets Mongo satisfy owner-scoped listings via
+// the index instead of an in-memory sort.
+documentSchema.index({ owner: 1, lastEditedAt: -1 });
 
 // Hashed the same way User passwords are, so a DB leak doesn't expose link passwords verbatim.
 documentSchema.pre('save', async function hashSharePassword(next) {
