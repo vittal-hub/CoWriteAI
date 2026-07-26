@@ -311,6 +311,18 @@ a {
 /* ── Mobile utility ── */
 @media (max-width: 640px) {
   .hide-mobile { display: none !important; }
+
+  /* ~44px minimum touch target on the shared button classes used app-wide,
+     without changing their desktop sizing (fine as-is with a mouse). */
+  .btn--icon {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .btn--sm {
+    min-height: 40px;
+    padding: 8px 13px;
+  }
 }
 
 @media (min-width: 641px) {

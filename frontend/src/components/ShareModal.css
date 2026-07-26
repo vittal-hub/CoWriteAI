@@ -242,6 +242,9 @@
   .share-form__row input {
     width: 100%;
     order: 1;
+    /* iOS Safari zooms the whole page in on focus for any input under 16px —
+       jarring on a modal that's otherwise sized to fit the screen. */
+    font-size: 16px;
   }
 
   .share-form__row select,

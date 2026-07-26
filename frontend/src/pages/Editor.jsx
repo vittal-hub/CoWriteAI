@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Share2, MessageSquare, Download, Trash2, Bell, LogIn, UserPlus } from 'lucide-react'
+import { ArrowLeft, Share2, MessageSquare, Download, Trash2, Bell, LogIn, UserPlus, MoreVertical } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
 import { documents as docsApi } from '../utils/api.js'
 import EditorToolbar, { MODES } from '../components/EditorToolbar.jsx'
@@ -95,6 +95,10 @@ export default function EditorPage({ demoMode = false }) {
   const [, forceRerender] = useState(0)
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  // On mobile there isn't room for Share/Download/Delete as their own header
+  // buttons — this consolidates them into a single overflow menu instead of
+  // hiding them outright (see .editor-header__more, shown only ≤640px).
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false)
 
   function handleSelectionChange({ text, from, to }) {
     setSelectedText(text)
@@ -129,10 +133,13 @@ export default function EditorPage({ demoMode = false }) {
       if (downloadMenuOpen && !e.target.closest('.editor-header__dropdown')) {
         setDownloadMenuOpen(false)
       }
+      if (moreMenuOpen && !e.target.closest('.editor-header__more')) {
+        setMoreMenuOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [downloadMenuOpen])
+  }, [downloadMenuOpen, moreMenuOpen])
 
   // Fetch / load initial document content when docId changes
   useEffect(() => {
@@ -490,6 +497,51 @@ export default function EditorPage({ demoMode = false }) {
               <Trash2 size={14} /> Delete
             </button>
           )}
+
+          {/* Mobile-only overflow menu: Share/Download/Delete lose their own
+              header buttons below 640px (see .hide-mobile above) — this keeps
+              every one of those actions reachable instead of just hidden. */}
+          <div className="editor-header__more show-mobile">
+            <button
+              className="btn btn--icon"
+              onClick={() => setMoreMenuOpen((o) => !o)}
+              aria-label="More actions"
+              aria-haspopup="true"
+              aria-expanded={moreMenuOpen}
+            >
+              <MoreVertical size={18} />
+            </button>
+            {moreMenuOpen && (
+              <div className="editor-header__dropdown-menu">
+                {!demoMode && (
+                  <>
+                    <button onClick={() => { downloadAsDOCX(); setMoreMenuOpen(false) }}>
+                      <Download size={14} /> Download DOCX
+                    </button>
+                    <button onClick={() => { downloadAsPDF(); setMoreMenuOpen(false) }}>
+                      <Download size={14} /> Download PDF
+                    </button>
+                    <button onClick={() => { setShareOpen(true); setMoreMenuOpen(false) }}>
+                      <Share2 size={14} /> Share
+                    </button>
+                  </>
+                )}
+                {(demoMode || currentDoc.owner === currentUser?.id) && (
+                  <button
+                    onClick={() => { if (!demoMode) handleDeleteDocument(); setMoreMenuOpen(false) }}
+                    disabled={demoMode}
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                )}
+                {demoMode && (
+                  <Link to="/login" onClick={() => setMoreMenuOpen(false)}>
+                    <LogIn size={14} /> Sign in
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
 
           <button
             className={`btn btn--icon ${commentsOpen ? 'editor-header__comments--active' : ''}`}

@@ -175,3 +175,21 @@
   padding: 4px 2px;
   background: transparent;
 }
+
+@media (max-width: 860px) {
+  /* iOS Safari zooms the whole page in on focus for any input under 16px —
+     the panel is already a fixed-position bottom sheet on mobile, so a zoom
+     mid-reply would visibly shift the whole layout underneath it. */
+  .comments-panel__form textarea,
+  .comment__reply-form input {
+    font-size: 16px;
+  }
+
+  /* 22px was a fine target for a mouse pointer; bump it toward the ~44px
+     touch-target guideline so resolving a comment doesn't require precision
+     tapping on a phone. */
+  .comment__resolve {
+    width: 36px;
+    height: 36px;
+  }
+}

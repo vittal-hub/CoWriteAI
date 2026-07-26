@@ -57,7 +57,8 @@
   color: var(--indigo);
 }
 
-.editor-header__dropdown {
+.editor-header__dropdown,
+.editor-header__more {
   position: relative;
 }
 
@@ -72,10 +73,15 @@
   box-shadow: var(--shadow-lg);
   padding: 8px 0;
   min-width: 140px;
+  max-width: calc(100vw - 24px);
   z-index: 1000;
 }
 
-.editor-header__dropdown-menu button {
+.editor-header__dropdown-menu button,
+.editor-header__dropdown-menu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   text-align: left;
   padding: 8px 16px;
@@ -84,10 +90,18 @@
   cursor: pointer;
   font-size: 13.5px;
   color: var(--ink);
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
-.editor-header__dropdown-menu button:hover {
+.editor-header__dropdown-menu button:hover,
+.editor-header__dropdown-menu a:hover {
   background: var(--paper-sunken);
+}
+
+.editor-header__dropdown-menu button:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
 }
 
 .editor-body {
@@ -198,8 +212,33 @@
     box-shadow: var(--shadow-lg);
   }
 
+  /* CommentsPanel is taken out of flow above (position: fixed) once it's a
+     bottom sheet, but its flex-row wrapper doesn't know that — left as-is it
+     still reserves 360px of a ~375px-wide phone for an invisible box,
+     crushing the editor canvas next to it whenever comments are open. */
+  .editor-comments-wrapper,
+  .editor-comments-wrapper--closed {
+    width: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
   .editor-header__title {
     font-size: 14.5px;
+  }
+
+  /* Comfortable ~44px touch targets on the editor-specific icon buttons
+     (.btn--icon itself is already handled globally, see index.css) without
+     changing their (already fine with a mouse) desktop size. */
+  .mini-btn,
+  .tool-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .toolbar__swatch {
+    width: 28px;
+    height: 28px;
   }
 }
 
@@ -216,5 +255,22 @@
 
   .editor-header .presence-stack {
     display: none;
+  }
+
+  .toolbar {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
+  /* Text labels on the mode-switcher buttons (Text/Pencil/Voice/AI) are the
+     single biggest space cost in the toolbar — dropping them here is what
+     lets every mode stay reachable by tapping instead of needing to scroll
+     the toolbar to find one that's scrolled out of view. */
+  .tool-btn span {
+    display: none;
+  }
+
+  .tool-btn {
+    padding: 8px;
   }
 }
