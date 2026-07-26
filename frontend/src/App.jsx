@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react'
 import { Navigate, Routes, Route } from 'react-router-dom'
 import Landing from './pages/Landing.jsx'
 import Dashboard from './pages/Dashboard.jsx'

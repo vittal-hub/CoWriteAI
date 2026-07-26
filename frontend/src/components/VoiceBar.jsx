@@ -95,11 +95,8 @@ export default function VoiceBar({ onInsert, onClose }) {
         setStatus((s) => (s === 'error' ? s : 'stopped'))
         return
       }
-      // Recognition ended on its own — most browsers auto-stop continuous
-      // recognition after a period of silence even with continuous=true.
-      // Restart transparently so a pause never truncates dictation; the
-      // accumulated transcript lives in finalTranscriptRef, independent of
-      // the recognition instance, so nothing is lost across the restart.
+      // Browsers auto-stop continuous recognition after a silence — restart
+      // transparently so a pause never truncates dictation.
       try {
         rec.start()
       } catch {

@@ -14,7 +14,7 @@ const start = async () => {
 
   server.listen(PORT, () => {
     console.log(
-      `[server] CollabNoteAI API listening on http://localhost:${PORT}`,
+      `[server] CoWriteAI API listening on http://localhost:${PORT}`,
     );
     console.log(`[server] WebSocket endpoint: ws://localhost:${PORT}/ws`);
   });

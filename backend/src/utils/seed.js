@@ -24,7 +24,7 @@ const seed = async () => {
       content: [
         {
           type: 'paragraph',
-          content: [{ type: 'text', text: 'Welcome to CollabNoteAI! Start typing to collaborate live.' }],
+          content: [{ type: 'text', text: 'Welcome to CoWriteAI! Start typing to collaborate live.' }],
         },
       ],
     },

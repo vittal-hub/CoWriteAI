@@ -17,9 +17,8 @@ const SYSTEM_PROMPT =
   "corrections. Output ONLY the corrected text itself. Never add commentary, explanations, " +
   "intro phrases, markdown, headings, quotes, or multiple options.";
 
-// Only "here's the rewrite:"-style wrapper labels are stripped — anchored to the very start
-// and required to be followed by whitespace, so a legitimate sentence that happens to start
-// with one of these words (e.g. "Output the report by Friday...") is left untouched.
+// Anchored to the very start so a sentence that legitimately starts with one
+// of these words (e.g. "Output the report by Friday...") is left untouched.
 const WRAPPER_PREFIX_RE =
   /^(here'?s\s+(?:the\s+)?(?:rewrite|rewritten\s+text|corrected\s+text|revised\s+text)\s*[:\-]\s*|rewritten\s+text\s*[:\-]\s*|corrected\s+text\s*[:\-]\s*|revised\s+text\s*[:\-]\s*|rewrite\s*[:\-]\s*|output\s*[:\-]\s*)/i;
 
@@ -33,8 +32,7 @@ function cleanOutput(raw) {
   // Strip a single leading wrapper label, if present (e.g. "Rewrite: ...").
   text = text.replace(WRAPPER_PREFIX_RE, "").trim();
 
-  // Unwrap only if the ENTIRE response is symmetrically wrapped in matching quotes —
-  // avoids clipping content that legitimately starts or ends with a quote character.
+  // Unwrap only if the entire response is symmetrically quote-wrapped.
   const quoteMatch = text.match(/^(["'`])([\s\S]*)\1$/);
   if (quoteMatch && quoteMatch[2].trim()) {
     text = quoteMatch[2].trim();
@@ -95,16 +93,15 @@ const callOpenRouter = async (prompt, { temperature = AI_TEMPERATURE } = {}) => 
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:5173",
-        "X-Title": "CollabNoteAI",
+        "HTTP-Referer": process.env.CLIENT_URL || "http://localhost:5173",
+        "X-Title": "CoWriteAI",
       },
       body: JSON.stringify({
         model: OPENROUTER_MODEL,
         max_tokens: 2048,
         temperature,
-        // Disable extended reasoning where the routed model supports it — this is a
-        // deterministic correction task, and reasoning tokens were observed eating most
-        // of the completion budget and truncating the visible rewrite mid-sentence.
+        // Disabled — reasoning tokens were eating the completion budget and
+        // truncating the visible rewrite mid-sentence.
         reasoning: { enabled: false },
         messages: [
           { role: "system", content: SYSTEM_PROMPT },

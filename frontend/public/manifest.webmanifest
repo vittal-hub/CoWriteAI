@@ -1,0 +1,17 @@
+{
+  "name": "CoWriteAI",
+  "short_name": "CoWriteAI",
+  "description": "CoWriteAI is a real-time collaborative notebook — write, sketch, dictate, and comment together on the same document.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f6f1",
+  "theme_color": "#4c4fd8",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

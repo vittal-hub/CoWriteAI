@@ -12,22 +12,15 @@ const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15min
 
-// `secure`/`sameSite` must reflect whether THIS request actually arrived over
-// HTTPS, not just NODE_ENV — a cookie marked Secure is silently dropped by
-// the browser on a plain-HTTP origin (e.g. NODE_ENV=production but served
-// over http://localhost, or a misconfigured deploy), which breaks login
-// with no visible error anywhere. `req.secure` correctly respects
-// X-Forwarded-Proto since app.js sets `trust proxy`, so this works both
-// behind a TLS-terminating proxy and on plain local HTTP.
+// Derived from the actual request (not NODE_ENV) since a Secure cookie is
+// silently dropped over plain HTTP; `req.secure` respects X-Forwarded-Proto
+// via `trust proxy` in app.js, so this works both locally and behind TLS.
 const cookieOptions = (req) => {
   const secure = Boolean(req?.secure);
   return {
     httpOnly: true,
     secure,
-    // SameSite=None requires Secure — only usable once we know the request
-    // is actually HTTPS; otherwise fall back to Lax, which still works for
-    // same-site (or same-origin-via-proxy) local/dev setups.
-    sameSite: secure ? 'none' : 'lax',
+    sameSite: secure ? 'none' : 'lax', // SameSite=None requires Secure
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 };
@@ -40,9 +33,7 @@ const sendAuthResponse = (req, res, user, statusCode = 200) => {
     .json({ success: true, token, user: user.toPublicJSON() });
 };
 
-// Production-grade password policy: a hard length floor plus a minimum
-// variety of character classes, mirroring (and now actually enforcing
-// server-side) the strength meter Signup.jsx already shows users.
+// Mirrors (and enforces server-side) the strength meter shown in Signup.jsx.
 function passwordPolicyError(password) {
   if (password.length < 8) return 'Password must be at least 8 characters';
   let variety = 0;
@@ -95,11 +86,7 @@ export const register = asyncHandler(async (req, res) => {
 
   await sendVerificationEmail(user, raw);
 
-  // No cookie/session is issued here — registering does not log you in.
-  // Login itself blocks unverified accounts (see below), so an unverified
-  // user never ends up with a working session either way; not auto-logging
-  // in also means there's nothing to revoke if verification is never
-  // completed.
+  // No cookie/session issued here — login blocks unverified accounts anyway.
   res.status(201).json({
     success: true,
     message: 'Account created. Check your email to verify your account before signing in.',
@@ -129,11 +116,8 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   user.verificationTokenExpires = null;
   await user.save();
 
-  // Verifying is the one link a user can click straight from their inbox —
-  // logging them in immediately here (rather than sending them to /login)
-  // is what "prevent login until verified" is protecting; it's not meant to
-  // add a redundant extra login step right after they've just proven
-  // ownership of the mailbox.
+  // Log them in immediately — no need for a redundant /login step right
+  // after they've just proven ownership of the mailbox.
   sendAuthResponse(req, res, user);
 });
 
@@ -147,10 +131,8 @@ export const resendVerification = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email: email.toLowerCase() });
 
-  // Always return the same generic response whether or not the account
-  // exists (or is already verified) — an email-enumeration endpoint is a
-  // privacy leak in its own right, and this one especially since it's
-  // reachable while fully logged out.
+  // Same response whether or not the account exists — avoids leaking which
+  // emails are registered via this logged-out-accessible endpoint.
   const genericResponse = {
     success: true,
     message: 'If an account with that email exists and is not yet verified, a new verification link has been sent.',
@@ -182,11 +164,9 @@ export const login = asyncHandler(async (req, res) => {
     '+password +failedLoginAttempts +lockUntil'
   );
 
-  // Same generic message for "no such account" and "wrong password" further
-  // down — but a locked account is reported honestly (with a wait time)
-  // since the user has typically already proven they know roughly who they
-  // are by reaching this state, and a vague error here would just prompt
-  // more retries against the lockout.
+  // Unlike the generic "invalid email or password" below, a lockout is
+  // reported honestly with a wait time — a vague error here would just
+  // prompt more retries against it.
   if (user?.isLocked()) {
     res.status(423);
     throw new Error(

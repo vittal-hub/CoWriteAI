@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { wsUrl } from '../utils/api.js'
 
 export function useDocumentSocket(docId) {
   const socketRef = useRef(null)
@@ -29,16 +30,14 @@ export function useDocumentSocket(docId) {
     let isMounted = true
 
     const connect = () => {
-      // Connect to the proxied /ws endpoint
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const wsUrl = `${protocol}//${window.location.host}/ws?docId=${docId}`
-      const ws = new WebSocket(wsUrl)
+      // Connect to the /ws endpoint — proxied locally by Vite, or resolved
+      // against VITE_WS_URL in production if the backend is on its own host.
+      const ws = new WebSocket(wsUrl(`/ws?docId=${docId}`))
 
       ws.onopen = () => {
         if (!isMounted) return
         socketRef.current = ws
-        console.log(`[ws] Connected to document room: ${docId}`)
-        
+
         heartbeatTimer = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: 'ping' }))
@@ -49,7 +48,7 @@ export function useDocumentSocket(docId) {
       ws.onmessage = (event) => {
         try {
           const { type, payload } = JSON.parse(event.data)
-          
+
           // Built-in presence management
           if (type === 'presence:state') {
             setActivePresence((payload.collaborators || []).map(p => ({ ...p, id: p.userId })))
@@ -71,11 +70,11 @@ export function useDocumentSocket(docId) {
           } else if (type === 'presence:leave') {
             setActivePresence(prev => prev.filter(p => String(p.userId) !== String(payload.userId)))
           } else if (type === 'presence:cursor') {
-            setActivePresence(prev => prev.map(p => 
+            setActivePresence(prev => prev.map(p =>
               String(p.userId) === String(payload.userId) ? { ...p, cursor: payload.cursor } : p
             ))
           }
-          
+
           // Dispatch to custom handlers
           if (handlersRef.current[type]) {
             handlersRef.current[type].forEach(cb => cb(payload))
@@ -86,14 +85,13 @@ export function useDocumentSocket(docId) {
       }
 
       ws.onclose = () => {
-        console.log(`[ws] Disconnected from document room: ${docId}`)
         clearInterval(heartbeatTimer)
         socketRef.current = null
         if (isMounted) {
           reconnectTimer = setTimeout(connect, 3000)
         }
       }
-      
+
       ws.onerror = (err) => {
         console.error('[ws] Error:', err)
       }

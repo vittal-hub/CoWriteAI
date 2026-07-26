@@ -4,7 +4,10 @@ import { X, Link2, Lock, ArrowRight, AlertCircle } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
 import './JoinModal.css'
 
-const BASE = '/api'
+// See utils/api.js — VITE_API_URL lets this point at a separately-hosted
+// backend in production; empty/unset keeps the relative path, which the Vite
+// dev proxy (or a same-origin production deploy) resolves.
+const BASE = `${import.meta.env.VITE_API_URL || ''}/api`
 
 export default function JoinModal({ onClose }) {
   const navigate = useNavigate()
@@ -69,7 +72,7 @@ export default function JoinModal({ onClose }) {
               <input
                 id="join-link"
                 type="text"
-                placeholder="e.g. http://localhost:5173/shared/abc123xyz or abc123xyz"
+                placeholder={`e.g. ${window.location.origin}/shared/abc123xyz or abc123xyz`}
                 value={linkOrToken}
                 onChange={(e) => setLinkOrToken(e.target.value)}
                 autoFocus

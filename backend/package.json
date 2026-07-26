@@ -1,7 +1,7 @@
 {
-  "name": "collabnoteai-backend",
+  "name": "cowriteai-backend",
   "version": "1.0.0",
-  "description": "Backend API + realtime server for CollabNoteAI (local-first realtime collaborative rich-text editor)",
+  "description": "Backend API + realtime server for CoWriteAI (local-first realtime collaborative rich-text editor)",
   "type": "module",
   "main": "src/server.js",
   "scripts": {
@@ -24,7 +24,6 @@
     "morgan": "^1.10.0",
     "nanoid": "^5.0.7",
     "nodemailer": "^9.0.3",
-    "uuid": "^9.0.1",
     "validator": "^13.12.0",
     "ws": "^8.18.0"
   },

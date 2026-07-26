@@ -96,8 +96,8 @@ export default function Signup() {
       <div className="auth-brand">
         <div className="auth-brand__inner">
           <Link to="/" className="auth-brand__logo">
-            <span className="auth-brand__mark">CN</span>
-            CollabNoteAI
+            <span className="auth-brand__mark">CW</span>
+            CoWriteAI
           </Link>
           <div className="auth-brand__tagline">
             <h2>Join thousands of teams writing together.</h2>

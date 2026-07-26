@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Share2, MessageSquare, Download, MoreVertical, Trash2, CheckCircle2, XCircle, Bell, LogIn, UserPlus } from 'lucide-react'
+import { ArrowLeft, Share2, MessageSquare, Download, Trash2, Bell, LogIn, UserPlus } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
 import { documents as docsApi } from '../utils/api.js'
 import EditorToolbar, { MODES } from '../components/EditorToolbar.jsx'
@@ -94,8 +94,6 @@ export default function EditorPage({ demoMode = false }) {
   const [, forceRerender] = useState(0)
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [saveStatus, setSaveStatus] = useState(null) // 'success' | 'error' | null
-  const saveStatusTimer = useRef(null)
 
   function handleSelectionChange({ text, from, to }) {
     setSelectedText(text)
@@ -125,16 +123,6 @@ export default function EditorPage({ demoMode = false }) {
     navigate('/app')
   }
 
-  function showSaveStatus(status) {
-    if (saveStatusTimer.current) {
-      clearTimeout(saveStatusTimer.current)
-    }
-    setSaveStatus(status)
-    saveStatusTimer.current = setTimeout(() => {
-      setSaveStatus(null)
-    }, 2500)
-  }
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (downloadMenuOpen && !e.target.closest('.editor-header__dropdown')) {
@@ -147,25 +135,15 @@ export default function EditorPage({ demoMode = false }) {
 
   // Fetch / load initial document content when docId changes
   useEffect(() => {
-    // Demo Mode never touches the backend — content/title/strokes are already
-    // seeded synchronously in useState above, and `loading` starts false.
+    // Demo Mode content/title/strokes are already seeded in useState above.
     if (demoMode) return
 
-    console.log('[EditorPage] useEffect docId triggered')
-    // If already loaded this document ID, do not re-run
-    if (loadedDocIdRef.current === docId && currentDoc) {
-      console.log('[EditorPage] already loaded this docId, skipping')
-      return
-    }
+    // Already loaded this doc — don't re-fetch.
+    if (loadedDocIdRef.current === docId && currentDoc) return
 
     let isMounted = true
-    // The dashboard's document list (normaliseDoc) never includes `strokes` —
-    // it's a lightweight list-view shape. Using it as a fast-path that skipped
-    // the real fetch entirely meant opening a document from the Dashboard (the
-    // normal navigation path) never loaded persisted pencil drawings at all;
-    // only a hard refresh (which always takes the docsApi.get() branch below)
-    // happened to show them. Now it's used only for an instant title/content
-    // preview — the full fetch below always still runs to load strokes.
+    // Dashboard's list view has no `strokes`, so it's only used for an instant
+    // title/content preview here — the fetch below always still runs to load them.
     const contextDoc = (documents || []).find((d) => d.id === docId)
     if (contextDoc) {
       setCurrentDoc(contextDoc)
@@ -196,7 +174,7 @@ export default function EditorPage({ demoMode = false }) {
         setCurrentDoc(d)
         setContent(d.content)
         setTitle(d.title)
-        
+
         // Load strokes if available
         if (raw.strokes && raw.strokes.length > 0) {
           setStrokesRaw(raw.strokes)

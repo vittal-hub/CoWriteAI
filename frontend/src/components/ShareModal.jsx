@@ -4,7 +4,10 @@ import { useApp } from '../context/AppContext.jsx'
 import Avatar from './Avatar.jsx'
 import './ShareModal.css'
 
-const BASE = '/api'
+// See utils/api.js — VITE_API_URL lets this point at a separately-hosted
+// backend in production; empty/unset keeps the relative path, which the Vite
+// dev proxy (or a same-origin production deploy) resolves.
+const BASE = `${import.meta.env.VITE_API_URL || ''}/api`
 
 export default function ShareModal({ doc, onClose }) {
   const { currentUser, fetchDocuments } = useApp()

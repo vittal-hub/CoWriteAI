@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import './DrawingCanvas.css'
 
-// Helper function to resolve CSS variable to actual color
 function resolveColor(cssColor) {
   if (!cssColor.startsWith('var(')) {
     return cssColor;
@@ -27,14 +26,9 @@ export default function DrawingCanvas({ active, isEraser, color, strokes, setStr
     redraw()
   }, [strokes])
 
-  // The canvas must cover the FULL scrollable document height, not just the
-  // currently-visible viewport slice. The parent (.editor-canvas) is a
-  // position:relative + overflow-y:auto container; a plain `height:100%`
-  // absolutely-positioned child only spans its visible client height, so
-  // drawing below the first screenful of content previously hit nothing —
-  // that's why the pencil "stopped working" once you'd scrolled past it.
-  // Both a ResizeObserver (viewport/layout changes) and a MutationObserver
-  // (content growing taller as the user types) keep it correctly sized.
+  // Canvas must cover the full scrollable height, not just the viewport, or
+  // drawing below the first screenful hits nothing. ResizeObserver covers
+  // layout changes; MutationObserver covers content growing as you type.
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return

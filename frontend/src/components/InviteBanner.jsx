@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FileText, Check, X, BellRing } from 'lucide-react'
+import { Check, X, BellRing } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
 import './InviteBanner.css'
 

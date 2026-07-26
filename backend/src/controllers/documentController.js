@@ -64,10 +64,7 @@ export const listDocuments = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     documents: docs.map((d) => {
-      // A never-edited document still holds its schema default (a plain
-      // object, not the HTML string the editor produces) — stringifying that
-      // object rendered a literal "[object Object]" preview/content on every
-      // freshly-created, untouched document.
+      // A never-edited doc holds its schema default (an object, not HTML) — guard against that.
       const plainText = (typeof d.content === 'string' ? d.content : '')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ')

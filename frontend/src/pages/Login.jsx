@@ -51,8 +51,8 @@ export default function Login() {
       <div className="auth-brand">
         <div className="auth-brand__inner">
           <Link to="/" className="auth-brand__logo">
-            <span className="auth-brand__mark">CN</span>
-            CollabNoteAI
+            <span className="auth-brand__mark">CW</span>
+            CoWriteAI
           </Link>
           <div className="auth-brand__tagline">
             <h2>Your team's thoughts, in one place.</h2>
@@ -89,7 +89,7 @@ export default function Login() {
         <div className="auth-form-wrap">
           <div className="auth-form-header">
             <h1>Welcome back</h1>
-            <p>Sign in to your CollabNoteAI workspace</p>
+            <p>Sign in to your CoWriteAI workspace</p>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>

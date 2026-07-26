@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Sparkles, Check, RotateCcw, X, Ban } from 'lucide-react';
+import { API_BASE } from '../utils/api.js';
 import './AIRewriteBar.css';
 
 const TONES = [
@@ -121,7 +122,7 @@ export default function AIRewriteBar({
         });
         rewritten = mockRewrite(textToUse, toneToUse);
       } else {
-        const res = await fetch('/api/ai/rewrite', {
+        const res = await fetch(`${API_BASE}/api/ai/rewrite`, {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },

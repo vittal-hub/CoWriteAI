@@ -22,7 +22,7 @@ export const shareByEmail = asyncHandler(async (req, res) => {
   const target = await User.findOne({ email: email.toLowerCase() });
   if (!target) {
     res.status(404);
-    throw new Error('No CollabNoteAI user found with that email');
+    throw new Error('No CoWriteAI user found with that email');
   }
   if (String(target._id) === String(req.doc.owner)) {
     res.status(400);

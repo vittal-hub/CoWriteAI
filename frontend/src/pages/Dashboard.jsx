@@ -128,8 +128,8 @@ export default function Dashboard() {
       <aside className="dash__sidebar">
         <div className="dash__sidebar-top">
           <Link to="/" className="dash__brand-btn" aria-label="Go to home">
-            <span className="dash__brand-mark">CN</span>
-            <span className="dash__brand-label">CollabNoteAI</span>
+            <span className="dash__brand-mark">CW</span>
+            <span className="dash__brand-label">CoWriteAI</span>
           </Link>
           <button
             className="btn btn--icon dash__menu-btn-sidebar"

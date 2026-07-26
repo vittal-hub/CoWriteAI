@@ -59,8 +59,8 @@ const features = [
 
 const faqs = [
   {
-    q: 'What is CollabNoteAI?',
-    a: 'CollabNoteAI is a real-time collaborative notebook. You can write, sketch, dictate, and comment on the same document as your team, with everyone\'s changes syncing live.',
+    q: 'What is CoWriteAI?',
+    a: 'CoWriteAI is a real-time collaborative notebook. You can write, sketch, dictate, and comment on the same document as your team, with everyone\'s changes syncing live.',
   },
   {
     q: 'How does real-time collaboration work?',
@@ -122,8 +122,8 @@ export default function Landing() {
         }`}
       >
         <div className="landing__brand">
-          <span className="landing__brand-mark">CN</span>
-          CollabNoteAI
+          <span className="landing__brand-mark">CW</span>
+          CoWriteAI
         </div>
         <nav className="landing__nav-links">
           <a href="#features">Features</a>
@@ -156,7 +156,7 @@ export default function Landing() {
             Everyone's ink at once.
           </h1>
           <p className="hero__sub">
-            CollabNoteAI is a shared notebook where typing, sketching, and talking all land on the
+            CoWriteAI is a shared notebook where typing, sketching, and talking all land on the
             same page — live, with your team's cursors moving right alongside yours.
           </p>
           <div className="hero__actions">
@@ -289,7 +289,7 @@ export default function Landing() {
 
       <footer className="landing__footer">
         <div className="landing__footer-top">
-          <span className="landing__footer-copyright">© 2026 CollabNoteAI. All rights reserved.</span>
+          <span className="landing__footer-copyright">© 2026 CoWriteAI. All rights reserved.</span>
           <nav className="landing__footer-links">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>

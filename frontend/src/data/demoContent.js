@@ -1,10 +1,10 @@
 // Content shown in Demo Mode (Editor.jsx demoMode=true). Everything here is
 // in-memory only — nothing is ever sent to the backend or MongoDB.
 
-export const DEMO_TITLE = 'Welcome to CollabNoteAI'
+export const DEMO_TITLE = 'Welcome to CoWriteAI'
 
 export const DEMO_CONTENT = `
-<h1>Welcome to CollabNoteAI</h1>
+<h1>Welcome to CoWriteAI</h1>
 <p>This interactive demo lets you try the editor before creating an account. Everything on this page runs locally in your browser.</p>
 <p><strong>Try it out:</strong></p>
 <ul>

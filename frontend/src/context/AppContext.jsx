@@ -11,8 +11,9 @@ import {
   documents as docsApi,
   notifications as notifsApi,
   comments as commentsApi,
+  API_BASE,
+  wsUrl,
 } from '../utils/api.js'
-import { currentUser, initialDocuments, initialNotifications, people, initialComments } from '../data/mockData.js'
 
 const AppContext = createContext(null)
 
@@ -87,16 +88,10 @@ function normaliseNotif(raw) {
 // ── normalise a comment ────────────────────────────────────────────────────
 function normaliseComment(raw) {
   const author = raw.author ?? {}
-  // Ensure anchor is a string or null, not an object
+  // Normalise anchor to a string or null (backend may send an object with a `quote`)
   let anchor = raw.anchor ?? null
   if (anchor && typeof anchor !== 'string') {
-    // If anchor is an object with a quote property, use that
-    if (anchor.quote) {
-      anchor = anchor.quote
-    } else {
-      // Otherwise, just use null
-      anchor = null
-    }
+    anchor = anchor.quote ?? null
   }
   return {
     id: raw._id ?? raw.id,
@@ -159,8 +154,7 @@ export function AppProvider({ children }) {
 
   const setTheme = useCallback((t) => setThemeState(t), [])
 
-  // editor font size (was a fully dead <select> in Settings — this actually
-  // applies it, via a CSS custom property RichEditor.css reads)
+  // Applied via a CSS custom property that RichEditor.css reads.
   const [editorFontSize, setEditorFontSizeState] = useState(loadEditorFontSize)
 
   useEffect(() => {
@@ -219,18 +213,13 @@ export function AppProvider({ children }) {
     fetchNotifications()
 
     // Global user socket for real-time notification push without page reload
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const wsUrl = `${protocol}//${window.location.host}/ws`
     let ws
     try {
-      ws = new WebSocket(wsUrl)
+      ws = new WebSocket(wsUrl('/ws'))
       ws.onmessage = (event) => {
         try {
           const { type } = JSON.parse(event.data)
-          // Backend pushes this exact type (see backend/src/utils/notify.js) whenever
-          // a share invite, comment, or other notification is created — matching it
-          // here is what makes the notification badge update instantly instead of
-          // only after the next page refresh.
+          // Backend pushes this on any new notification (see utils/notify.js).
           if (type === 'notification:new') {
             fetchNotifications()
             fetchDocuments()
@@ -258,10 +247,7 @@ export function AppProvider({ children }) {
     }
   }, [])
 
-  // Registering no longer logs the user in — the backend requires email
-  // verification before a session can be created, so there is no `user` to
-  // build a profile from yet. Callers get the server's message back
-  // (e.g. "check your email") to display, rather than a boolean.
+  // Registering doesn't log the user in — email verification is required first.
   const register = useCallback(async (name, email, password, penColor) => {
     setAuthError(null)
     try {
@@ -380,7 +366,7 @@ export function AppProvider({ children }) {
 
   const acceptInvite = useCallback(async (docId) => {
     try {
-      const res = await fetch(`/api/documents/${docId}/accept-invite`, {
+      const res = await fetch(`${API_BASE}/api/documents/${docId}/accept-invite`, {
         method: 'POST',
         credentials: 'include',
       })
@@ -395,7 +381,7 @@ export function AppProvider({ children }) {
 
   const declineInvite = useCallback(async (docId) => {
     try {
-      const res = await fetch(`/api/documents/${docId}/decline-invite`, {
+      const res = await fetch(`${API_BASE}/api/documents/${docId}/decline-invite`, {
         method: 'POST',
         credentials: 'include',
       })
@@ -534,9 +520,7 @@ export function AppProvider({ children }) {
       setTheme,
       editorFontSize,
       setEditorFontSize,
-      // legacy aliases (some components expect these)
-      currentUser: profile,
-      people,
+      currentUser: profile, // legacy alias some components expect
       // docs
       documents,
       comments,

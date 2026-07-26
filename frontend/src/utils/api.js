@@ -1,8 +1,17 @@
 // ── API Client ─────────────────────────────────────────────────────────────
-// All requests go through the Vite dev proxy (/api → http://localhost:5000/api).
+// VITE_API_URL/VITE_WS_URL (see frontend/.env.example) let this target a
+// separately-hosted backend in production; left unset, paths stay relative
+// and resolve via the Vite dev proxy locally or same-origin in production.
 // Cookies (JWT) are included automatically via credentials: 'include'.
 
-const BASE = '/api'
+export const API_BASE = import.meta.env.VITE_API_URL || ''
+const BASE = `${API_BASE}/api`
+
+export function wsUrl(path) {
+  if (import.meta.env.VITE_WS_URL) return `${import.meta.env.VITE_WS_URL}${path}`
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${protocol}//${window.location.host}${path}`
+}
 
 async function request(method, path, body) {
   const opts = {
@@ -69,9 +78,4 @@ export const notifications = {
   markAllRead: ()  => patch('/notifications/read-all', {}),
   clearAll:   ()   => del('/notifications'),
   delete:     (id) => del(`/notifications/${id}`),
-}
-
-// ── AI ─────────────────────────────────────────────────────────────────────
-export const ai = {
-  rewrite: (text, instruction) => post('/ai/rewrite', { text, instruction }),
 }

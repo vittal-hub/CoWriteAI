@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Lock, FileText, ArrowRight, AlertCircle } from 'lucide-react'
+import { Lock, ArrowRight, AlertCircle } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
+import { API_BASE } from '../utils/api.js'
 import './SharedLink.css'
 
 export default function SharedLink() {
@@ -21,7 +22,7 @@ export default function SharedLink() {
     // already-invited collaborator opening their own link is seen as an
     // anonymous visitor by the backend's optionalAuth check, which incorrectly
     // rejects them under the default 'restricted' linkAccess.
-    fetch(`/api/documents/shared/${token}`, { credentials: 'include' })
+    fetch(`${API_BASE}/api/documents/shared/${token}`, { credentials: 'include' })
       .then(async (res) => {
         const data = await res.json()
         if (!res.ok) throw new Error(data.message || 'Link invalid or expired')
@@ -35,7 +36,7 @@ export default function SharedLink() {
         }
 
         if (!data.document.requiresPassword) {
-          const joinRes = await fetch('/api/documents/join', {
+          const joinRes = await fetch(`${API_BASE}/api/documents/join`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -59,7 +60,7 @@ export default function SharedLink() {
     setError('')
     setVerifying(true)
     try {
-      const res = await fetch(`/api/documents/join`, {
+      const res = await fetch(`${API_BASE}/api/documents/join`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

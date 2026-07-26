@@ -95,8 +95,8 @@ export default function Settings() {
         }`}
       >
         <Link to="/app" className="settings-header__brand">
-          <span className="settings-header__mark">CN</span>
-          CollabNoteAI
+          <span className="settings-header__mark">CW</span>
+          CoWriteAI
         </Link>
         <h1>Settings</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -238,7 +238,7 @@ export default function Settings() {
           {/* ─── Appearance Tab ─── */}
           {tab === 'appearance' && (
             <div className="settings-section">
-              <p className="settings-desc">Choose how CollabNoteAI looks on this device.</p>
+              <p className="settings-desc">Choose how CoWriteAI looks on this device.</p>
 
               <div className="settings-field">
                 <label>Theme</label>

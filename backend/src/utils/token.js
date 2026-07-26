@@ -2,10 +2,8 @@ import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-// No hardcoded fallback: a checked-in default secret would let anyone forge
-// valid auth tokens for any user if JWT_SECRET is ever unset in an
-// environment (e.g. a misconfigured deploy) — fail loudly instead, matching
-// the same fail-fast approach used for MONGO_URI in config/db.js.
+// No hardcoded fallback — an unset JWT_SECRET must fail loudly, not let
+// anyone forge valid tokens with a known checked-in default.
 const getSecret = () => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -21,10 +19,7 @@ export const signToken = (userId) =>
 
 export const verifyToken = (token) => jwt.verify(token, getSecret());
 
-// ── One-time tokens (email verification) ────────────────────────────────
-// The raw token is what goes out in the emailed link; only its SHA-256 hash
-// is ever persisted, the same way passwords are never stored raw — a
-// database leak alone then can't be used to verify (or take over) accounts.
+// One-time tokens (email verification) — only the hash is ever persisted, never the raw token.
 export const hashOneTimeToken = (raw) => crypto.createHash('sha256').update(raw).digest('hex');
 
 export const generateOneTimeToken = (ttlMs) => {

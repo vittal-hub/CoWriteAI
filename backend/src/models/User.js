@@ -22,19 +22,14 @@ const userSchema = new mongoose.Schema(
     },
     avatarUrl: { type: String, default: null },
 
-    // ── Email verification ──────────────────────────────────────────────
-    // Login is blocked until this is true (see authController.login).
+    // Login is blocked until verified (see authController.login).
     isVerified: { type: Boolean, default: false },
-    // Only a SHA-256 hash of the token is stored — mirrors how passwords are
-    // never stored raw — so a database leak alone can't be used to verify
-    // (or otherwise take over) an account via a leaked token.
+    // Only a SHA-256 hash is stored, like passwords — never the raw token.
     verificationTokenHash: { type: String, default: null, select: false },
     verificationTokenExpires: { type: Date, default: null, select: false },
 
-    // ── Brute-force lockout ──────────────────────────────────────────────
-    // Extra layer beyond the per-IP rate limiter on /auth/login — this one
-    // protects a single targeted account even if attempts are spread across
-    // many IPs.
+    // Lockout: protects one targeted account even across many source IPs,
+    // beyond the per-IP rate limiter on /auth/login.
     failedLoginAttempts: { type: Number, default: 0, select: false },
     lockUntil: { type: Date, default: null, select: false },
   },

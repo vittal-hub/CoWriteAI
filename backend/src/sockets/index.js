@@ -35,10 +35,8 @@ const pushToUser = (userId, { type, payload }) => {
 };
 bindNotificationPusher(pushToUser);
 
-// Fixed 5-slot palette matching the app's existing pen-0..pen-4 color system
-// (Avatar/PresenceStack/drawing pens) — assigned per document *session*, not
-// from the user's personal (randomly-assigned-at-signup) penColor, so two
-// collaborators can never end up with the same cursor color in the same room.
+// Assigned per document session (not the user's personal penColor), so two
+// collaborators never share a cursor color in the same room.
 const PEN_SLOTS = 5;
 
 const assignPenIndex = (room) => {
@@ -91,10 +89,8 @@ const leaveDocRoom = (docId, userId, ws) => {
   const room = docRooms.get(docId);
   if (!room) return;
   const entry = room.get(userId);
-  // A stale connection (e.g. the old tab/socket after a refresh opens a new
-  // one) closing later must not evict the user's now-current connection —
-  // otherwise a refresh briefly broadcasts a spurious "user left" for someone
-  // who is, in fact, still present.
+  // Ignore a stale connection closing (e.g. old tab after a refresh) so it
+  // doesn't evict the user's current, still-active connection.
   if (entry && entry.ws !== ws) return;
   room.delete(userId);
   if (room.size === 0) docRooms.delete(docId);
@@ -153,9 +149,7 @@ export const initWebSocketServer = (httpServer) => {
     if (docId) {
       const doc = await Document.findById(docId).catch(() => null);
       const directPermission = doc && !doc.isDeleted ? doc.permissionFor(userId) : null;
-      // Mirrors middleware/documentAccess.js's loadDocument logic: a public
-      // view/edit link grants that level of access even without a formal
-      // (accepted) collaborator entry.
+      // Mirrors middleware/documentAccess.js: a public view/edit link also grants access.
       const isPublicViewable = doc && !doc.isDeleted && ['view', 'edit'].includes(doc.linkAccess);
       const effectivePermission = directPermission || (isPublicViewable ? doc.linkAccess : null);
 
@@ -183,14 +177,8 @@ export const initWebSocketServer = (httpServer) => {
       }
       const { type, payload = {} } = msg;
 
-      // A view-only collaborator (or a public "view" link visitor) must not be
-      // able to mutate the document just because they're connected to the
-      // room — the REST API enforces this via loadDocument('edit'), but this
-      // socket previously trusted anyone present in the room. Re-check on
-      // every mutating message rather than only at connect time, so a
-      // permission downgrade (owner revokes access / flips the link to
-      // view-only) mid-session takes effect immediately instead of only on
-      // the visitor's next reconnect.
+      // Re-checked per mutating message (not just at connect) so a
+      // mid-session permission downgrade takes effect immediately.
       const canEdit = () => {
         const room = docRooms.get(currentDocId);
         const permission = room?.get(userId)?.permission;

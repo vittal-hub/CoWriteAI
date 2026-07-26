@@ -53,9 +53,7 @@ const documentSchema = new mongoose.Schema(
 
 documentSchema.index({ title: 'text' });
 
-// Share-link passwords were previously stored and compared in plain text —
-// hash them the same way User passwords are hashed, so a database leak
-// doesn't also leak every document's link password verbatim.
+// Hashed the same way User passwords are, so a DB leak doesn't expose link passwords verbatim.
 documentSchema.pre('save', async function hashSharePassword(next) {
   if (!this.isModified('sharePassword') || !this.sharePassword) return next();
   // Already a bcrypt hash (e.g. re-saving an already-hashed value) — skip.

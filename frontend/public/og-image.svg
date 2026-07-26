@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#12151a"/>
+  <rect x="64" y="64" width="88" height="88" rx="20" fill="#4c4fd8"/>
+  <text x="108" y="128" font-family="'Bricolage Grotesque', 'Inter', sans-serif" font-weight="700"
+        font-size="40" fill="#ffffff" text-anchor="middle">CW</text>
+  <text x="64" y="300" font-family="'Bricolage Grotesque', 'Inter', sans-serif" font-weight="700"
+        font-size="72" fill="#e8ecf0">CoWriteAI</text>
+  <text x="64" y="360" font-family="'Inter', sans-serif" font-weight="400"
+        font-size="30" fill="#9aa3b0">One page. Everyone's ink at once.</text>
+</svg>

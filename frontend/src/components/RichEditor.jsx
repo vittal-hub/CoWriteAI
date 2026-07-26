@@ -30,10 +30,7 @@ const CustomTextStyle = TextStyle.extend({
 })
 
 export default function RichEditor({ content, onChange, onSelectionChange, onCursorMove, editorRef, onReady }) {
-  // Reports the caret's actual screen position (viewport coordinates) for
-  // collaborative cursor broadcasting — this is the real text-cursor position,
-  // not a mouse position, so it tracks typing, arrow keys, clicks, and
-  // selection changes alike.
+  // Reports the caret's screen position (not mouse position) for collaborative cursor broadcasting.
   function reportCursorPosition(editorInstance) {
     if (!onCursorMove) return
     try {
@@ -41,8 +38,7 @@ export default function RichEditor({ content, onChange, onSelectionChange, onCur
       const coords = editorInstance.view.coordsAtPos(from)
       onCursorMove({ top: coords.top, left: coords.left, bottom: coords.bottom })
     } catch {
-      // Position not yet measurable (e.g. immediately on mount) — the next
-      // selection update will report a valid one.
+      // Not yet measurable (e.g. on mount) — the next selection update will report a valid one.
     }
   }
 
@@ -59,8 +55,7 @@ export default function RichEditor({ content, onChange, onSelectionChange, onCur
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     onSelectionUpdate: ({ editor }) => {
       const { from, to } = editor.state.selection
-      // Paragraph breaks become blank lines and hard breaks become newlines, so
-      // multi-paragraph selections keep their structure when sent to the AI.
+      // Preserves paragraph/line structure so multi-paragraph selections stay readable for the AI.
       const text = editor.state.doc.textBetween(from, to, '\n\n', '\n')
       onSelectionChange({ text, from, to })
       reportCursorPosition(editor)
