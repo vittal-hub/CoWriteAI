@@ -1,0 +1,555 @@
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.dash {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  transition: grid-template-columns 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Collapsed desktop sidebar */
+.dash--sidebar-collapsed {
+  grid-template-columns: 60px 1fr;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.dash__sidebar {
+  border-right: 1px solid var(--line);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: var(--paper-raised);
+  overflow: hidden;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 240px;
+}
+
+/* Collapsed state */
+.dash--sidebar-collapsed .dash__sidebar {
+  width: 60px;
+  padding: 20px 10px;
+  align-items: center;
+}
+
+.dash__sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.dash--sidebar-collapsed .dash__sidebar-top {
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Ensure brand mark always has border radius on all four sides */
+.dash__brand-mark {
+  border-radius: 8px !important;
+}
+
+/* Sidebar menu button */
+.dash__menu-btn-sidebar {
+  display: flex;
+}
+
+.dash--sidebar-collapsed .dash__menu-btn-sidebar {
+  display: flex;
+}
+
+.dash__sidebar-close {
+  display: none;
+}
+
+/* ── Brand Button ────────────────────────────────────────────────────────── */
+.dash__brand-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15.5px;
+  text-decoration: none;
+  color: var(--ink);
+  overflow: hidden;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+}
+
+/* No underline on hover/focus for brand link */
+.dash__brand-btn:hover,
+.dash__brand-btn:focus {
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.dash__brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--brand-mark-bg) !important;
+  color: var(--brand-mark-fg) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.dash__brand-label {
+  transition: opacity 0.2s, width 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.dash--sidebar-collapsed .dash__brand-label {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.dash--sidebar-collapsed .dash__brand-btn {
+  justify-content: center;
+}
+
+.dash--sidebar-collapsed .dash__brand-label {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+/* ── New Document button ─────────────────────────────────────────────────── */
+.dash__new {
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+  gap: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.dash__new-label {
+  transition: opacity 0.2s, width 0.2s;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.dash--sidebar-collapsed .dash__new {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.dash--sidebar-collapsed .dash__new-label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  display: none;
+}
+
+/* ── Nav filters ─────────────────────────────────────────────────────────── */
+.dash__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  width: 100%;
+}
+
+.dash__filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: none;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.dash__filter:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
+.dash__filter--active {
+  background: var(--paper-sunken);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.dash__filter svg {
+  flex-shrink: 0;
+}
+
+.dash__filter-label {
+  transition: opacity 0.2s;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.dash--sidebar-collapsed .dash__filter-label {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.dash--sidebar-collapsed .dash__filter {
+  justify-content: center;
+  padding: 10px;
+}
+
+/* ── Sidebar Bottom — icon-only ──────────────────────────────────────────── */
+.dash__sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+  width: 100%;
+}
+
+/* Each icon button in the bottom */
+.dash__icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.dash__icon-btn:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
+/* Avatar button special sizing */
+.dash__avatar-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Tooltip */
+.dash__icon-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1000;
+}
+
+.dash__icon-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: var(--ink);
+}
+
+.dash__icon-btn:hover .dash__icon-tooltip {
+  opacity: 1;
+}
+
+/* ── Main Panel ──────────────────────────────────────────────────────────── */
+.dash__main {
+  padding: 16px 28px 60px;
+  max-width: 1180px;
+  background: var(--paper);
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── Sticky Topbar ───────────────────────────────────────────────────────── */
+.dash__topbar {
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 6px 14px;
+  height: 48px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--glass-shadow);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Menu button always visible */
+.dash__menu-btn {
+  flex-shrink: 0;
+}
+
+.dash__search {
+  flex: 1;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  color: var(--ink-faint);
+  background: var(--paper-raised);
+  pointer-events: auto;
+}
+
+.dash__search-icon,
+.dash__search-spinner {
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.dash__search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13.5px;
+  color: var(--ink);
+  width: 100%;
+  min-width: 0;
+  font-family: inherit;
+  pointer-events: auto;
+}
+
+.dash__search input::placeholder {
+  color: var(--ink-faint);
+  opacity: 1;
+}
+
+.dash__search input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.dash__topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.dash__sort {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-faint);
+  font-size: 13px;
+}
+
+.dash__sort select {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 6px 8px;
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-family: inherit;
+}
+
+.dash__heading {
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+
+.dash__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.dash__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--ink-faint);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-lg);
+}
+
+/* ── Mobile Overlay ──────────────────────────────────────────────────────── */
+.dash__overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+}
+
+/* ── Auth loading spinner ─────────────────────────────────────────────────── */
+.auth-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Responsive: Tablet & Mobile ─────────────────────────────────────────── */
+@media (max-width: 880px) {
+  .dash {
+    grid-template-columns: 1fr;
+  }
+
+  /* On mobile, collapse class has no effect on grid */
+  .dash--sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .dash__sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 270px !important;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--shadow-lg);
+    align-items: flex-start;
+    padding: 20px 12px !important;
+  }
+  
+  /* On mobile, sidebar top should not be column */
+  .dash--sidebar-open .dash__sidebar-top,
+  .dash--sidebar-collapsed .dash__sidebar-top {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  /* On mobile, brand label always visible */
+  .dash--sidebar-collapsed .dash__brand-label,
+  .dash--sidebar-open .dash__brand-label {
+    opacity: 1;
+    width: auto;
+    pointer-events: auto;
+  }
+
+  .dash--sidebar-collapsed .dash__brand-btn,
+  .dash--sidebar-open .dash__brand-btn {
+    justify-content: flex-start;
+  }
+
+  .dash--sidebar-collapsed .dash__new-label,
+  .dash--sidebar-open .dash__new-label {
+    opacity: 1;
+    width: auto;
+  }
+
+  .dash--sidebar-collapsed .dash__filter-label,
+  .dash--sidebar-open .dash__filter-label {
+    opacity: 1;
+    width: auto;
+  }
+
+  .dash--sidebar-collapsed .dash__filter,
+  .dash--sidebar-open .dash__filter {
+    justify-content: flex-start;
+    padding: 8px 10px;
+  }
+
+  .dash--sidebar-open .dash__sidebar {
+    transform: translateX(0);
+  }
+
+  .dash--sidebar-open .dash__overlay {
+    display: block;
+  }
+
+  .dash__sidebar-close {
+    display: flex;
+  }
+
+  .dash__main {
+    padding: 12px 14px 60px;
+  }
+
+  .dash__topbar {
+    top: 6px;
+    height: 46px;
+    padding: 4px 10px;
+    margin-bottom: 16px;
+  }
+
+  .dash__search {
+    max-width: none;
+  }
+
+  .dash__sort span,
+  .dash__sort select {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .dash__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash__heading {
+    font-size: 19px;
+  }
+
+  .dash__topbar-right .dash__sort {
+    display: none;
+  }
+}

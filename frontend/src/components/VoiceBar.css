@@ -1,0 +1,147 @@
+.voice-bar {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(76, 79, 216, 0.04);
+}
+
+.voice-bar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.voice-bar__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.voice-bar__status--listening {
+  color: var(--coral);
+}
+
+.voice-bar__status--error {
+  color: var(--coral);
+}
+
+.voice-bar__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--coral);
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+.voice-bar__cancel-btn {
+  color: var(--ink-soft);
+}
+
+.voice-bar__cancel-btn:hover {
+  color: var(--coral);
+  background: var(--paper-sunken);
+}
+
+.voice-bar__error {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--coral);
+}
+
+.voice-bar__interim {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.voice-bar__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voice-bar__label {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.voice-bar__mic {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+}
+
+.voice-bar__mic--live {
+  background: var(--coral);
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+.voice-bar__mic:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  animation: none;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 93, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 107, 93, 0); }
+}
+
+.voice-bar__hint {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+.voice-bar__preview {
+  margin-top: 12px;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+
+.voice-bar__preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.voice-bar__badge {
+  background: var(--pen);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.voice-bar__auto {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.voice-bar__preview p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}

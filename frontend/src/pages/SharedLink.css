@@ -1,0 +1,77 @@
+.shared-link-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  padding: 20px;
+}
+
+.shared-link-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg, 16px);
+  padding: 32px 28px;
+  width: 400px;
+  max-width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.shared-link-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--paper-sunken);
+  color: var(--indigo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.shared-link-card h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.shared-link-sub {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+.shared-link-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm, 8px);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+.shared-link-input:focus {
+  border-color: var(--indigo);
+}
+
+.shared-link-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--coral, #ef4444);
+  margin-bottom: 12px;
+}
+
+.shared-link-btn {
+  width: 100%;
+  padding: 10px;
+  justify-content: center;
+}

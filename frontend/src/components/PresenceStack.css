@@ -1,0 +1,110 @@
+.presence-stack {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.presence-stack__item {
+  position: relative;
+  margin-left: -8px;
+  transition: transform 0.15s ease;
+}
+
+.presence-stack__item:hover {
+  transform: translateY(-2px);
+  z-index: 10;
+}
+
+.presence-stack__item:first-child {
+  margin-left: 0;
+}
+
+.presence-stack__dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--paper-raised);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.presence-stack__overflow {
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px var(--paper-raised);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── User Details Popover ── */
+.presence-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1000;
+  width: 220px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md, 10px);
+  box-shadow: var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.2));
+  padding: 12px 14px;
+  animation: popover-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popover-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.presence-popover__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.presence-popover__name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.presence-popover__email {
+  margin: 2px 0 0 0;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  word-break: break-all;
+}
+
+.presence-popover__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--teal);
+  background: var(--paper-sunken);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.presence-popover__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+}

@@ -1,0 +1,327 @@
+/* ---------------------------------------------------
+   CollabNoteAI — design tokens
+   Concept: "live ink" — a paper-and-pen workspace where
+   every collaborator writes in their own ink color.
+--------------------------------------------------- */
+:root {
+  /* surfaces */
+  --paper: #f5f6f1;
+  --paper-raised: #ffffff;
+  --paper-sunken: #ececE5;
+  --line: rgba(27, 36, 48, 0.1);
+  --line-strong: rgba(27, 36, 48, 0.18);
+
+  /* ink / text */
+  --ink: #1b2430;
+  --ink-soft: #5b6472;
+  --ink-faint: #8891a0;
+
+  /* brand mark badge (CN logo) */
+  --brand-mark-bg: #4c4fd8;
+  --brand-mark-fg: #ffffff;
+
+  /* brand + pen colors */
+  --indigo: #4c4fd8;
+  --indigo-deep: #383bb8;
+  --coral: #ff6b5d;
+  --teal: #1d9a8b;
+  --amber: #e2a93a;
+  --violet: #8b5cf6;
+
+  /* semantic */
+  --danger: #d3453b;
+  --focus: #4c4fd8;
+
+  /* glassmorphism sticky header — translucent frosted glass color */
+  --glass-bg: rgba(245, 246, 241, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+
+  /* type */
+  --font-display: "Bricolage Grotesque", "Inter", sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+
+  /* shadow */
+  --shadow-sm: 0 1px 2px rgba(27, 36, 48, 0.06), 0 1px 1px rgba(27, 36, 48, 0.04);
+  --shadow-md: 0 6px 20px rgba(27, 36, 48, 0.09), 0 2px 6px rgba(27, 36, 48, 0.06);
+  --shadow-lg: 0 20px 50px rgba(27, 36, 48, 0.16);
+}
+
+/* ── Dark theme ── */
+[data-theme="dark"] {
+  --paper: #12151a;
+  --paper-raised: #1c2028;
+  --paper-sunken: #0e1117;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+
+  --ink: #e8ecf0;
+  --ink-soft: #9aa3b0;
+  --ink-faint: #5e6978;
+
+  /* brand mark badge in dark mode stays crisp indigo with white text */
+  --brand-mark-bg: #4c4fd8;
+  --brand-mark-fg: #ffffff;
+
+  --indigo: #7c7ff0;
+  --indigo-deep: #6062d8;
+  --coral: #ff8075;
+  --teal: #2bbdad;
+  --amber: #eabc56;
+  --violet: #a67ff8;
+
+  --danger: #e0544a;
+  --focus: #7c7ff0;
+
+  /* glassmorphism sticky header — translucent frosted dark glass */
+  --glass-bg: rgba(18, 21, 26, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(76, 79, 216, 0.2);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* pen-color utility classes, used for avatars / cursors / tags */
+.pen-0 { --pen: var(--indigo); }
+.pen-1 { --pen: var(--coral); }
+.pen-2 { --pen: var(--teal); }
+.pen-3 { --pen: var(--amber); }
+.pen-4 { --pen: var(--violet); }
+
+/* ---- brand mark badges ---- */
+.landing__brand-mark,
+.dash__brand-mark,
+.settings-header__mark,
+.auth-brand__mark {
+  background: var(--brand-mark-bg) !important;
+  color: var(--brand-mark-fg) !important;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* ---- shared primitives used across pages ---- */
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--indigo);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--primary {
+  background: var(--ink);
+  color: var(--paper-raised);
+}
+
+.btn--primary:hover {
+  background: var(--indigo-deep);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.btn--ghost:hover {
+  background: var(--paper-sunken);
+}
+
+.btn--secondary {
+  background: var(--paper-sunken);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.btn--secondary:hover {
+  background: var(--paper-raised);
+  border-color: var(--line-strong);
+}
+
+.btn--danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: rgba(211, 69, 59, 0.3);
+}
+
+.btn--danger:hover {
+  background: rgba(211, 69, 59, 0.08);
+}
+
+.btn--sm {
+  padding: 6px 11px;
+  font-size: 13px;
+}
+
+.btn--icon {
+  padding: 7px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-soft);
+}
+
+.btn--icon:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Theme toggle button ── */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.theme-toggle:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
+/* ── Toast notification ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: var(--ink);
+  color: var(--paper-raised);
+  padding: 10px 20px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 9999;
+  animation: toast-in 0.25s ease forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ── Mobile utility ── */
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
+}
+
+@media (min-width: 641px) {
+  .show-mobile { display: none !important; }
+}
+
+/* ── Auth loading screen ── */
+.auth-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+}

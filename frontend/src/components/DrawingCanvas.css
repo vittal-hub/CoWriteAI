@@ -1,0 +1,19 @@
+.draw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* width/height are set inline in JS to match the full scrollable content
+     height (not just the visible viewport) — see DrawingCanvas.jsx. */
+  pointer-events: none;
+  touch-action: none;
+}
+
+.draw-canvas--active {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.draw-canvas--eraser {
+  pointer-events: auto;
+  cursor: grab;
+}

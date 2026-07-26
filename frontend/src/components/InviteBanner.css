@@ -1,0 +1,73 @@
+.invite-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  background: var(--paper-raised);
+  border: 1px solid var(--line-strong);
+  border-left: 4px solid var(--indigo);
+  border-radius: var(--r-md, 12px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  padding: 14px 16px;
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.invite-banner__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.invite-banner__icon {
+  color: var(--indigo);
+}
+
+.invite-banner__close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.invite-banner__close:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
+.invite-banner__text {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 0 12px 0;
+  line-height: 1.45;
+}
+
+.invite-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.invite-banner__btn {
+  font-size: 12px;
+  padding: 5px 12px;
+}
