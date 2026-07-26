@@ -8,7 +8,13 @@ export const API_BASE = import.meta.env.VITE_API_URL || ''
 const BASE = `${API_BASE}/api`
 
 export function wsUrl(path) {
-  if (import.meta.env.VITE_WS_URL) return `${import.meta.env.VITE_WS_URL}${path}`
+  if (import.meta.env.VITE_WS_URL) {
+    // Accept the host either with or without a trailing /ws — every caller
+    // already passes a path starting with /ws, so a configured value of
+    // "wss://host/ws" would otherwise double up to "wss://host/ws/ws".
+    const base = import.meta.env.VITE_WS_URL.replace(/\/ws\/?$/, '').replace(/\/$/, '')
+    return `${base}${path}`
+  }
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
   return `${protocol}//${window.location.host}${path}`
 }
