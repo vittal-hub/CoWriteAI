@@ -317,6 +317,20 @@ export default function EditorPage({ demoMode = false }) {
   }
 
   function downloadAsDOCX() {
+    // DOCX (really: HTML-as-.doc, which is what Word actually opens here) has
+    // no reliable way to carry the whiteboard layer — it's a separate
+    // absolutely-positioned <canvas> overlaid on the text, not part of the
+    // document's HTML at all, and Word's HTML import doesn't faithfully
+    // re-layer an image over flowing text (positioning drifts or is dropped
+    // outright across Word versions). Rather than ship a drawing that
+    // silently shifts or vanishes, we export the text — which DOCX handles
+    // natively — and tell the user why the drawing isn't included.
+    if (strokes.length > 0) {
+      window.alert(
+        'This document contains a drawing. DOCX export can\'t reliably preserve the whiteboard layer, so only the text will be included. Use "Download PDF" to export with the drawing.'
+      )
+    }
+
     const header = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Document</title></head><body>';
     const footer = '</body></html>';
     const sourceHTML = header + content + footer;
@@ -333,8 +347,44 @@ export default function EditorPage({ demoMode = false }) {
   }
 
   async function downloadAsPDF() {
-    const element = document.querySelector('.rich-editor .ProseMirror')
-    if (!element) return
+    const textEl = document.querySelector('.rich-editor .ProseMirror')
+    if (!textEl) return
+
+    // The whiteboard is a separate <canvas> absolutely positioned over the
+    // text (see DrawingCanvas.jsx) — html2canvas only walks the DOM subtree
+    // it's told to render, so exporting just the ProseMirror node silently
+    // drops it. Snapshotting the canvas's own current pixels as a plain <img>
+    // and compositing it into an offscreen clone at the same position/size is
+    // a direct, exact capture of colors/widths/positions/scale as drawn — no
+    // re-rendering of strokes — while avoiding capturing transient UI (e.g.
+    // other collaborators' live cursors) that the real on-screen editor node
+    // would also pick up.
+    const drawCanvas = canvasRef.current?.querySelector('.draw-canvas')
+    const hasDrawing = drawCanvas && strokes.length > 0
+
+    const wrapper = document.createElement('div')
+    wrapper.style.position = 'fixed'
+    wrapper.style.top = '0'
+    wrapper.style.left = '-99999px'
+    wrapper.style.background = 'var(--paper, #fff)'
+    if (hasDrawing) {
+      wrapper.style.width = `${drawCanvas.clientWidth}px`
+      wrapper.style.height = `${drawCanvas.clientHeight}px`
+    }
+    wrapper.appendChild(textEl.cloneNode(true))
+
+    if (hasDrawing) {
+      const img = document.createElement('img')
+      img.src = drawCanvas.toDataURL('image/png')
+      img.style.position = 'absolute'
+      img.style.top = '0'
+      img.style.left = '0'
+      img.style.width = `${drawCanvas.clientWidth}px`
+      img.style.height = `${drawCanvas.clientHeight}px`
+      wrapper.appendChild(img)
+    }
+    document.body.appendChild(wrapper)
+
     const opt = {
       margin: 10,
       filename: `${title.trim() || 'Untitled document'}.pdf`,
@@ -342,12 +392,16 @@ export default function EditorPage({ demoMode = false }) {
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     }
-    // html2pdf.js bundles jsPDF + html2canvas (~15MB combined pre-minification) —
-    // loading it eagerly added it to every editor page load even though most
-    // sessions never click "Download PDF". Lazy-loading it here keeps it out
-    // of the main bundle entirely.
-    const { default: html2pdf } = await import('html2pdf.js')
-    html2pdf().set(opt).from(element).save()
+    try {
+      // html2pdf.js bundles jsPDF + html2canvas (~15MB combined pre-minification) —
+      // loading it eagerly added it to every editor page load even though most
+      // sessions never click "Download PDF". Lazy-loading it here keeps it out
+      // of the main bundle entirely.
+      const { default: html2pdf } = await import('html2pdf.js')
+      await html2pdf().set(opt).from(wrapper).save()
+    } finally {
+      wrapper.remove()
+    }
     setDownloadMenuOpen(false)
   }
 

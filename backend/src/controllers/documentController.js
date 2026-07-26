@@ -149,22 +149,31 @@ export const toggleStar = asyncHandler(async (req, res) => {
 
 // @route DELETE /api/documents/:id  (owner only)
 export const deleteDocument = asyncHandler(async (req, res) => {
+  // isDeleted=true is the only write that has to complete before responding —
+  // it's what every list/access query actually checks, so the document is
+  // already gone from the user's perspective the instant this is saved.
   req.doc.isDeleted = true;
   await req.doc.save();
-  await Comment.deleteMany({ document: req.doc._id });
 
+  // Comment cleanup and the collaborator notification fan-out are side
+  // effects, not consistency requirements — they don't need to gate the
+  // response, and running them concurrently rather than sequentially avoids
+  // stacking their latencies on top of each other either way.
   const recipients = req.doc.collaborators.map((c) => c.user);
-  if (recipients.length) {
-    await Notification.insertMany(
-      recipients.map((r) => ({
-        recipient: r,
-        actor: req.user._id,
-        type: 'document_deleted',
-        document: req.doc._id,
-        message: `"${req.doc.title}" was deleted by ${req.user.name}`,
-      }))
-    );
-  }
+  Promise.all([
+    Comment.deleteMany({ document: req.doc._id }),
+    recipients.length
+      ? Notification.insertMany(
+          recipients.map((r) => ({
+            recipient: r,
+            actor: req.user._id,
+            type: 'document_deleted',
+            document: req.doc._id,
+            message: `"${req.doc.title}" was deleted by ${req.user.name}`,
+          }))
+        )
+      : Promise.resolve(),
+  ]).catch((err) => console.error('[documents] post-delete cleanup failed:', err.message));
 
   res.json({ success: true, message: 'Document deleted' });
 });

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Search, Plus, FileText, Star, Users, FolderOpen,
@@ -49,7 +49,20 @@ export default function Dashboard() {
     return () => clearTimeout(id)
   }, [query])
 
+  // Read inside the effect below via a ref (not a dependency) — it only backs
+  // the error-fallback path and shouldn't itself trigger a re-fetch.
+  const ctxDocsRef = useRef(ctxDocs)
+  ctxDocsRef.current = ctxDocs
+
   // ── Server-side fetch for filter + query + sort ──────────────────────────
+  // Deliberately does NOT depend on ctxDocs: a create/delete/star/rename
+  // already updates context optimistically (see AppContext), and refetching
+  // the whole list from the server every time that array's reference changes
+  // would re-introduce the exact network round-trip the optimistic update was
+  // meant to avoid — undoing it and making the grid feel slow to update. The
+  // effect below reconciles those optimistic changes into displayDocs locally
+  // instead. A real server round-trip only happens when the filter/search/
+  // sort inputs themselves change.
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -66,14 +79,37 @@ export default function Dashboard() {
         setDisplayDocs(normalised)
       } catch (err) {
         console.error('[dashboard] list docs failed', err)
-        if (!cancelled) setDisplayDocs(ctxDocs)
+        if (!cancelled) setDisplayDocs(ctxDocsRef.current)
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
     load()
     return () => { cancelled = true }
-  }, [filter, debouncedQuery, sort, ctxDocs])
+  }, [filter, debouncedQuery, sort])
+
+  // ── Reconcile optimistic context mutations (delete/star/rename) into the
+  // locally-fetched, filtered list — no network request, so the grid updates
+  // the instant AppContext's optimistic update happens instead of waiting on
+  // a full server round-trip.
+  useEffect(() => {
+    setDisplayDocs((prev) => {
+      const ctxById = new Map(ctxDocs.map((d) => [d.id, d]))
+      let changed = false
+      const next = []
+      for (const d of prev) {
+        const match = ctxById.get(d.id)
+        if (!match) { changed = true; continue } // deleted out of context
+        if (match.starred !== d.starred || match.title !== d.title || match.updatedAt !== d.updatedAt) {
+          changed = true
+          next.push({ ...d, starred: match.starred, title: match.title, updatedAt: match.updatedAt })
+        } else {
+          next.push(d)
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [ctxDocs])
 
   const filtered = useMemo(() => {
     const ownerId = profile?.id ?? currentUser?.id
