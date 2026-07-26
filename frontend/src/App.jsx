@@ -5,7 +5,6 @@ import Editor from './pages/Editor.jsx'
 import DemoEditor from './pages/DemoEditor.jsx'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
-import VerifyEmail from './pages/VerifyEmail.jsx'
 import Settings from './pages/Settings.jsx'
 import SharedLink from './pages/SharedLink.jsx'
 import InviteBanner from './components/InviteBanner.jsx'
@@ -65,7 +64,6 @@ export default function App() {
           }
         />
         <Route path="/shared/:token" element={<SharedLink />} />
-        <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/demo" element={<DemoEditor />} />
         <Route
           path="/settings"

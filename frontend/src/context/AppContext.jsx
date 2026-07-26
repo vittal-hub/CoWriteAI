@@ -247,34 +247,17 @@ export function AppProvider({ children }) {
     }
   }, [])
 
-  // Registering doesn't log the user in — email verification is required first.
+  // No email verification step — a valid, deliverable-domain email is enough
+  // to register, and the account is usable immediately (see authController.register).
   const register = useCallback(async (name, email, password, penColor) => {
     setAuthError(null)
     try {
-      const { message } = await authApi.register(name, email, password, penColor)
-      return { ok: true, message }
-    } catch (err) {
-      setAuthError(err.message)
-      return { ok: false, message: err.message }
-    }
-  }, [])
-
-  const verifyEmail = useCallback(async (token) => {
-    try {
-      const { user } = await authApi.verifyEmail(token)
+      const { user } = await authApi.register(name, email, password, penColor)
       setProfile(buildProfile(user))
       setIsAuthenticated(true)
       return { ok: true }
     } catch (err) {
-      return { ok: false, message: err.message }
-    }
-  }, [])
-
-  const resendVerification = useCallback(async (email) => {
-    try {
-      const { message } = await authApi.resendVerification(email)
-      return { ok: true, message }
-    } catch (err) {
+      setAuthError(err.message)
       return { ok: false, message: err.message }
     }
   }, [])
@@ -511,8 +494,6 @@ export function AppProvider({ children }) {
       login,
       logout,
       register,
-      verifyEmail,
-      resendVerification,
       updateProfile,
       deleteAccount,
       // theme
@@ -547,7 +528,7 @@ export function AppProvider({ children }) {
     }),
     [
       isAuthenticated, authLoading, profile, authError,
-      login, logout, register, verifyEmail, resendVerification, updateProfile, deleteAccount,
+      login, logout, register, updateProfile, deleteAccount,
       theme, setTheme, editorFontSize, setEditorFontSize,
       documents, comments, notifications,
       notifyPrefs, updateNotifyPrefs,

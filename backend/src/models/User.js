@@ -22,12 +22,6 @@ const userSchema = new mongoose.Schema(
     },
     avatarUrl: { type: String, default: null },
 
-    // Login is blocked until verified (see authController.login).
-    isVerified: { type: Boolean, default: false },
-    // Only a SHA-256 hash is stored, like passwords — never the raw token.
-    verificationTokenHash: { type: String, default: null, select: false },
-    verificationTokenExpires: { type: Date, default: null, select: false },
-
     // Lockout: protects one targeted account even across many source IPs,
     // beyond the per-IP rate limiter on /auth/login.
     failedLoginAttempts: { type: Number, default: 0, select: false },
@@ -58,7 +52,6 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     email: this.email,
     penColor: this.penColor,
     avatarUrl: this.avatarUrl,
-    isVerified: this.isVerified,
     initials: this.name
       .split(' ')
       .filter(Boolean)

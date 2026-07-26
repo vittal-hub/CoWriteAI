@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
 
 // No hardcoded fallback — an unset JWT_SECRET must fail loudly, not let
 // anyone forge valid tokens with a known checked-in default.
@@ -18,15 +17,3 @@ export const signToken = (userId) =>
   });
 
 export const verifyToken = (token) => jwt.verify(token, getSecret());
-
-// One-time tokens (email verification) — only the hash is ever persisted, never the raw token.
-export const hashOneTimeToken = (raw) => crypto.createHash('sha256').update(raw).digest('hex');
-
-export const generateOneTimeToken = (ttlMs) => {
-  const raw = crypto.randomBytes(32).toString('hex');
-  return {
-    raw,
-    hash: hashOneTimeToken(raw),
-    expiresAt: new Date(Date.now() + ttlMs),
-  };
-};

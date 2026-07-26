@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Eye, EyeOff, ArrowRight, Check, MailCheck } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, ArrowRight, Check } from 'lucide-react'
 import { useApp } from '../context/AppContext.jsx'
 import './Auth.css'
 
@@ -27,6 +27,7 @@ const STRENGTH_CLASS = ['', 'strength--weak', 'strength--fair', 'strength--good'
 
 export default function Signup() {
   const { register, authError } = useApp()
+  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -35,10 +36,6 @@ export default function Signup() {
   const [penIndex, setPenIndex] = useState(0)
   const [localError, setLocalError] = useState('')
   const [loading, setLoading] = useState(false)
-  // Registration no longer logs the user in directly (the backend requires
-  // email verification first) — once it succeeds, show a "check your inbox"
-  // screen instead of navigating into the app.
-  const [registered, setRegistered] = useState(false)
 
   const error = localError || authError
   const strength = passwordStrength(password)
@@ -65,29 +62,7 @@ export default function Signup() {
     const penColor = PEN_COLORS[penIndex]?.label.toLowerCase()
     const { ok } = await register(name.trim(), email.trim(), password, penColor)
     setLoading(false)
-    if (ok) setRegistered(true)
-  }
-
-  if (registered) {
-    return (
-      <div className="auth-layout">
-        <div className="auth-form-panel" style={{ width: '100%' }}>
-          <div className="auth-form-wrap">
-            <div className="auth-form-header">
-              <MailCheck size={32} style={{ marginBottom: 12, color: 'var(--indigo)' }} />
-              <h1>Check your email</h1>
-              <p>
-                We sent a verification link to <strong>{email}</strong>. Click it to activate your
-                account — the link expires in 24 hours.
-              </p>
-            </div>
-            <p className="auth-switch">
-              Already verified? <Link to="/login">Sign in</Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    )
+    if (ok) navigate('/app')
   }
 
   return (

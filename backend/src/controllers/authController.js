@@ -5,10 +5,9 @@ import User, { PEN_COLOR_LIST } from '../models/User.js';
 import Document from '../models/Document.js';
 import Comment from '../models/Comment.js';
 import Notification from '../models/Notification.js';
-import { signToken, generateOneTimeToken, hashOneTimeToken } from '../utils/token.js';
-import { sendVerificationEmail } from '../utils/mailer.js';
+import { signToken } from '../utils/token.js';
+import { validateEmailDeliverability } from '../utils/emailValidation.js';
 
-const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15min
 
@@ -54,10 +53,20 @@ export const register = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Name, email and password are required');
   }
-  if (!validator.isEmail(email)) {
+
+  // Format, then domain deliverability (MX/A record) — catches both malformed
+  // addresses and syntactically-valid ones on domains that can't receive mail
+  // (typos, made-up TLDs) without sending anything or requiring a click-through.
+  const { valid, reason } = await validateEmailDeliverability(email);
+  if (!valid) {
     res.status(400);
-    throw new Error('Please provide a valid email');
+    throw new Error(
+      reason === 'format'
+        ? 'Please enter a valid email address.'
+        : 'This email domain does not exist.'
+    );
   }
+
   const passwordError = passwordPolicyError(password);
   if (passwordError) {
     res.status(400);
@@ -70,8 +79,6 @@ export const register = asyncHandler(async (req, res) => {
     throw new Error('An account with this email already exists');
   }
 
-  const { raw, hash, expiresAt } = generateOneTimeToken(VERIFICATION_TOKEN_TTL_MS);
-
   const user = await User.create({
     name: name.trim(),
     email: email.toLowerCase(),
@@ -79,76 +86,11 @@ export const register = asyncHandler(async (req, res) => {
     // Signup's pen-color picker is optional — an invalid/missing value falls
     // back to the schema's random default rather than rejecting the request.
     ...(PEN_COLOR_LIST.includes(penColor) ? { penColor } : {}),
-    isVerified: false,
-    verificationTokenHash: hash,
-    verificationTokenExpires: expiresAt,
   });
 
-  await sendVerificationEmail(user, raw);
-
-  // No cookie/session issued here — login blocks unverified accounts anyway.
-  res.status(201).json({
-    success: true,
-    message: 'Account created. Check your email to verify your account before signing in.',
-  });
-});
-
-// @route GET /api/auth/verify-email/:token
-export const verifyEmail = asyncHandler(async (req, res) => {
-  const { token } = req.params;
-  if (!token) {
-    res.status(400);
-    throw new Error('Verification token is required');
-  }
-
-  const hash = hashOneTimeToken(token);
-  const user = await User.findOne({ verificationTokenHash: hash }).select(
-    '+verificationTokenHash +verificationTokenExpires'
-  );
-
-  if (!user || !user.verificationTokenExpires || user.verificationTokenExpires < new Date()) {
-    res.status(400);
-    throw new Error('This verification link is invalid or has expired. Request a new one.');
-  }
-
-  user.isVerified = true;
-  user.verificationTokenHash = null;
-  user.verificationTokenExpires = null;
-  await user.save();
-
-  // Log them in immediately — no need for a redundant /login step right
-  // after they've just proven ownership of the mailbox.
-  sendAuthResponse(req, res, user);
-});
-
-// @route POST /api/auth/resend-verification   { email }
-export const resendVerification = asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  if (!email || !validator.isEmail(email)) {
-    res.status(400);
-    throw new Error('A valid email is required');
-  }
-
-  const user = await User.findOne({ email: email.toLowerCase() });
-
-  // Same response whether or not the account exists — avoids leaking which
-  // emails are registered via this logged-out-accessible endpoint.
-  const genericResponse = {
-    success: true,
-    message: 'If an account with that email exists and is not yet verified, a new verification link has been sent.',
-  };
-
-  if (!user || user.isVerified) {
-    return res.json(genericResponse);
-  }
-
-  const { raw, hash, expiresAt } = generateOneTimeToken(VERIFICATION_TOKEN_TTL_MS);
-  user.verificationTokenHash = hash;
-  user.verificationTokenExpires = expiresAt;
-  await user.save();
-  await sendVerificationEmail(user, raw);
-
-  res.json(genericResponse);
+  // No email verification step — the domain check above is the deliverability
+  // gate, so the account is usable immediately.
+  sendAuthResponse(req, res, user, 201);
 });
 
 // @route POST /api/auth/login
@@ -193,11 +135,6 @@ export const login = asyncHandler(async (req, res) => {
     user.failedLoginAttempts = 0;
     user.lockUntil = null;
     await user.save();
-  }
-
-  if (!user.isVerified) {
-    res.status(403);
-    throw new Error('Please verify your email before signing in. Check your inbox for the verification link.');
   }
 
   sendAuthResponse(req, res, user);

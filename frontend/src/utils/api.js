@@ -44,8 +44,6 @@ export const auth = {
   logout:   ()               => post('/auth/logout',   {}),
   updateMe: (updates)        => patch('/auth/me',       updates),
   deleteAccount: ()          => del('/auth/me'),
-  verifyEmail: (token)       => get(`/auth/verify-email/${token}`),
-  resendVerification: (email) => post('/auth/resend-verification', { email }),
 }
 
 // ── Documents ──────────────────────────────────────────────────────────────

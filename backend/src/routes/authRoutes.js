@@ -7,8 +7,6 @@ import {
   getMe,
   updateMe,
   deleteMe,
-  verifyEmail,
-  resendVerification,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -25,22 +23,9 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many attempts, please try again later.' },
 });
 
-// Resend-verification is a lighter-weight, easy-to-hit endpoint (no password
-// required) — a tighter limiter keeps it from being usable as an email bomb
-// against a target address.
-const resendLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: 'Too many attempts, please try again later.' },
-});
-
 router.post('/register', authLimiter, register);
 router.post('/login', authLimiter, login);
 router.post('/logout', logout);
-router.get('/verify-email/:token', verifyEmail);
-router.post('/resend-verification', resendLimiter, resendVerification);
 router.get('/me', protect, getMe);
 router.patch('/me', protect, updateMe);
 router.delete('/me', protect, deleteMe);

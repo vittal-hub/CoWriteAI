@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext.jsx'
 import './Auth.css'
 
 export default function Login() {
-  const { login, authError, resendVerification } = useApp()
+  const { login, authError } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -13,19 +13,12 @@ export default function Login() {
   const [showPw, setShowPw] = useState(false)
   const [localError, setLocalError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [resendMessage, setResendMessage] = useState('')
-  const [resending, setResending] = useState(false)
 
   const error = localError || authError
-  // The backend returns this exact phrase for an unverified account (403) —
-  // matching on it lets the UI offer a resend action instead of just a
-  // generic error string.
-  const needsVerification = !!error && /verify your email/i.test(error)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLocalError('')
-    setResendMessage('')
     if (!email.trim() || !password.trim()) {
       setLocalError('Please fill in all fields.')
       return
@@ -36,13 +29,6 @@ export default function Login() {
     // Sends the user back to a shared-link (or other) page they were trying to
     // reach before being bounced here, instead of always landing on /app.
     if (ok) navigate(location.state?.from || '/app')
-  }
-
-  async function handleResend() {
-    setResending(true)
-    const res = await resendVerification(email.trim())
-    setResending(false)
-    setResendMessage(res.message || 'If that account exists, a new link has been sent.')
   }
 
   return (
@@ -96,18 +82,6 @@ export default function Login() {
             {error && (
               <div className="auth-error" role="alert">
                 {error}
-                {needsVerification && (
-                  <button
-                    type="button"
-                    className="auth-field__forgot"
-                    style={{ display: 'block', marginTop: 6 }}
-                    onClick={handleResend}
-                    disabled={resending}
-                  >
-                    {resending ? 'Sending…' : 'Resend verification email'}
-                  </button>
-                )}
-                {resendMessage && <p style={{ marginTop: 6, marginBottom: 0 }}>{resendMessage}</p>}
               </div>
             )}
 
